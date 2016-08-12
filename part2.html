@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Multi Line chart</title>
+    <style>
+    path {
+    stroke: steelblue;
+    stroke-width: 2;
+    fill: none;
+    }
+    .axis {
+      font: 20px sans-serif;
+      font-weight: bold;
+    }
+    .axis path,
+    .axis line {
+    fill: none;
+    stroke: grey;
+    stroke-width: 1;
+    shape-rendering: crispEdges;
+        }
+  </style>
+  </head>
+  <body>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script>
+    var margin = {top: 150, right: 150, bottom: 30, left: 250},
+        width = 1200,
+        height = 600;
+
+    var x = d3.scale.ordinal().rangePoints([0, width],.02);
+    var y = d3.scale.linear().range([height, 0]);
+
+    var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left");
+
+  var valueline = d3.svg.line()
+      .x(function(d) { return x(d.Region); })
+      .y(function(d) { return y(d.fat_cons); });
+
+  var valueline1 = d3.svg.line()
+          .x(function(d) { return x(d.Region); })
+          .y(function(d) { return y(d.carbo_cons); });
+
+  var valueline2 = d3.svg.line()
+              .x(function(d) { return x(d.Region); })
+              .y(function(d) { return y(d.protein_cons); });
+
+
+  var svg = d3.select("body").append("svg")
+          .attr("width", width + margin.left + margin.right)
+          .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+          .attr("transform","translate(" + margin.left + "," + margin.top + ")");
+
+  d3.json("part2.json", function(error, data) {
+      data.forEach(function(d) {
+          d.Region= d.Region;
+          d.fat_cons = +d.fat_cons;
+          d.carbo_cons=+d.carbo_cons;
+          d.protein_cons=+d.protein_cons;
+          d.total=d.fat_cons+d.protein_cons+d.carbo_cons;
+      });
+
+      x.domain(data.map (function(d) { return d.Region; }));
+      y.domain([0, d3.max(data, function(d) { return d.total; })]);
+
+      svg.append("path")
+          .attr("class", "line")
+          .attr("d", valueline(data));
+      svg.selectAll("dot")
+          .data(data)
+        .enter().append("circle")
+          .attr("r", 4.5)
+          .attr("cx", function(d) { return x(d.Region); })
+          .attr("cy", function(d) { return y(d.fat_cons); });
+
+          svg.append("path")
+              .attr("class", "line")
+              .style("stroke","red")
+               .style("stroke-dasharray", ("10, 10"))
+              .attr("d", valueline1(data));
+          svg.selectAll("dot")
+              .data(data)
+              .enter().append("circle")
+              .attr("r", 4.5)
+              .attr("cx", function(d) { return x(d.Region); })
+              .attr("cy", function(d) { return y(d.carbo_cons); });
+
+              svg.append("path")
+                  .attr("class", "line")
+                    .style("stroke","green")
+                  .attr("d", valueline2(data));
+              svg.selectAll("dot")
+                  .data(data)
+                  .enter().append("circle")
+                  .attr("r", 4.5)
+                  .attr("cx", function(d) { return x(d.Region); })
+                  .attr("cy", function(d) { return y(d.protein_cons); });
+
+                  svg.append("rect")
+                     .attr("x",300)
+                     .attr("y",-45)
+                     .attr("width",600)
+                     .attr("height",200)
+                     .attr("fill","pink")
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(0," + height + ")")
+              .call(xAxis)
+          svg.append("g")
+              .attr("class", "y axis")
+              .call(yAxis)
+
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", -125)
+            .attr("x", -10)
+            .attr("dy", ".71em")
+            .attr("font-size",25)
+            .style("text-anchor", "end")
+            .attr("fill","red")
+            .text("Fat,Carbohydrates and Proteins Consumption");
+
+    					svg.append("text")
+    					.attr("x",450)
+    					.attr("y",10)
+    					.attr("fill","blue")
+    					.text("FAT CONSUMPTION");
+              svg.append("rect")
+    				  .attr("x",400)
+    				  .attr("y",-6)
+    				  .attr("fill","blue")
+    				  .attr("width",40)
+    					.attr("height",20)
+
+    					svg.append("text")
+    					.attr("x",450)
+    					.attr("y",60)
+    					  .attr("fill","blue")
+    					.text("CARBOHYDRATES CONSUMPTION");
+               svg.append("rect")
+    					.attr("x",400)
+    					.attr("y",45)
+    					.attr("fill","red")
+    					.attr("width",40)
+    					.attr("height",20)
+
+              svg.append("text")
+              .attr("x",450)
+              .attr("y",110)
+              .attr("fill","blue")
+              .text("PROTEINS CONSUMPTION");
+              svg.append("rect")
+              .attr("x",400)
+              .attr("y",95)
+              .attr("fill","green")
+              .attr("width",40)
+              .attr("height",20)
+
+  });
+
+  </script>
+  </body>
+  </html>
